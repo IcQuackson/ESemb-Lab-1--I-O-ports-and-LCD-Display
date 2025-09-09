@@ -68,7 +68,14 @@ void main(void)
 
     while (1)
     {
-        // Add your application code
+        if (Switch_GetValue() == 0)
+        {
+            LED_SetHigh();
+        }
+        else
+        {
+            LED_SetLow();
+        }
     }
 }
 /**

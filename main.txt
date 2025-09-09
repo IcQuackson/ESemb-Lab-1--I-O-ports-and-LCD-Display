@@ -1,0 +1,54 @@
+#include "mcc_generated_files/mcc.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <math.h>
+#include "LCD.h"
+
+/*
+ Main application
+*/
+void main(void)
+{
+    int   j;
+    int   a = 2025;
+    float c = 0.45;
+
+    // initialize the device
+    SYSTEM_Initialize();
+	
+    Lcd_Init();
+    Lcd_Clear();
+    __delay_ms(2);
+    Lcd_Set_Cursor(1,1);
+    Lcd_Write_String("PIC16f1718 "); //write string
+    __delay_ms(500);
+    Lcd_Write_Integer(a); //write integer
+    for (j=0; j<15; j++)
+    {
+      __delay_ms(500);
+      Lcd_Shift_Right();
+    }
+    Lcd_Clear();
+    __delay_ms(2);
+    Lcd_Write_Float(c); //write float
+    __delay_ms(1000);
+
+    // ADD NEW CODE HERE
+
+    while (1)
+    {
+      if (Switch_GetValue() == 0)
+      {
+        LED_SetHigh(); 
+      }
+      else
+      {
+        LED_SetLow();
+      }
+    }
+}
+/*
+ End of File
+*/
