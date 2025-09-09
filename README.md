@@ -90,5 +90,5 @@ OSCCON = '01101000'
 
 IRCF<3:0> = '1101'
 
-According to the *Datasheet-PIC16F1718*:
+According to the *Datasheet-PIC16F1718 - page 84*:
 - '1101' means the Internal Oscillator Frequency is at 4 MHz HF, as expected.
