@@ -1,103 +1,83 @@
-![alt text](group_data.png)
+# Lab 1 – I/O Ports & LCD Display
 
-## Simulation results analysis
+📚 Course: Embedded Systems Electronics (ESE-2526)
+🔧 Platform: PIC16F1718 + MPLAB X + MCC + PICkit 3
 
+---
+
+## Overview
+
+This lab introduces:
+
+* Configuring microcontroller I/O ports (input + output).
+* Driving an external LCD display via parallel communication.
+* Using MPLAB X IDE, MCC, and debugging with simulator + hardware.
+
+---
+
+## Circuit
+
+![Circuit](circuit.png)
+![Group Data](group_data.png)
+
+---
+
+## Simulation Analysis
+
+### Registers at Init
+
+```c
+// LATx
+LATA = 0x00; LATB = 0x00; LATC = 0x00;
+// TRISx
+TRISA = 0xFD; TRISB = 0xC0; TRISC = 0xFF; TRISE = 0x08;
+// ANSELx
+ANSELA = 0x3A; ANSELB = 0x00; ANSELC = 0xFC;
 ```
-    /**
-    LATx registers
-    */
-    LATA = 0x00;
-    LATB = 0x00;
-    LATC = 0x00;
 
-    /**
-    TRISx registers
-    */
-    TRISE = 0x08;
-    TRISA = 0xFD;
-    TRISB = 0xC0;
-    TRISC = 0xFF;
+### Macros
 
-    /**
-    ANSELx registers
-    */
-    ANSELC = 0xFC;
-    ANSELB = 0x00;
-    ANSELA = 0x3A;
-```
+* **Switch\_GetValue()** → reads RA0 (ON/OFF)
+* **LED\_SetHigh()** → sets RA1 = 1 (LED ON)
+* **LED\_SetLow()** → sets RA1 = 0 (LED OFF)
 
-### Macros meaning
+### SFR Addresses
 
-1. Check if switch is **ON** or **OFF**:
+* `TRISA`: 0x08C
+* `PORTA`: 0x00C
+* `LATA`: 0x10C
 
-    ```c
-    #define Switch_GetValue()           PORTAbits.RA0
-    ```
+---
 
-2. Turn **ON** the LED:
+## Debug Results
 
-    ```c
-    #define LED_SetHigh()            do { LATAbits.LATA1 = 1; } while(0)
-    ```
+* Breakpoints: `LED_SetHigh` / `LED_SetLow`
+* With switch **High**, LED is **OFF**
 
-3. Turn **OFF** the LED:
+| Register | Addr  | Value | Notes                |
+| -------- | ----- | ----- | -------------------- |
+| PORTA    | 0x0C  | 0x01  | RA0=1 (switch High)  |
+| TRISA    | 0x8C  | 0xFD  | unchanged            |
+| LATA     | 0x10C | 0x00  | latch, not pin state |
 
-    ```c
-    #define LED_SetLow()             do { LATAbits.LATA1 = 0; } while(0)
-    ```
+💡 **Reminder:** LATA shows last written latch, not real pin state.
 
-### SFR addresses
+---
 
-- TRISA: ```08C```
-- PORTA: ```00C```
-- LATA: ```10C```
+## ANSELA
 
+`00111000` → RA0/RA1 digital, rest analog.
 
-### Experience
+## OSCCON
 
-- After running debugger with breakpoints on LED_SetHigh and LED_SetLow with Stimulus fired to stop at Low.
+`01101000` → IRCF = `1101` → 4 MHz internal oscillator.
 
-#### SFR values
-- PORTA: ```0x01```		changed from ```0x00```
-- TRISA: ```0xFD``` 	unchanged
-- LATA: ```0x00```		unchanged
+---
 
-| Register (Addr) | Bit7  | Bit6  | Bit5  | Bit4  | Bit3  | Bit2  | Bit1  | Bit0  |
-| --------------- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
-| PORTA (0x0C)    | RA7=0 | RA6=0 | RA5=0 | RA4=0 | RA3=0 | RA2=0 | RA1=0 | RA0=1 |
+## Expected Behavior
 
+* Switch Low → LED ON.
+* Switch High → LED OFF.
+* LCD displays group number `n` at position `n+3`.
 
-According to the program:
-- when the switch is Low, turn **ON** the LED.
-- when the switch is High, turn **OFF** the LED.
-
-Since the switch is High for this experience then the LED is **OFF** and R1 is set to '1' and **PORTA** will show ```0x01```
-
-TRISA is correctly unchanged since we didn't change the type of pin.
-
-#### Why is LATA still '0' and not '1'?
-
-Reading LATA tells you the last value written to the latch, not the actual pin state.
-
-#### ANSELA
-
-ANSELA = '00111000'
-
-ANSELA0 = 0
-ANSELA1 = 0
-
-ANSELA has 6 bits used in an 8 bit register so:
--  The 2 MSB will be set to 0
-- Our ANSELA0 and 1 are set to '0' (digital)
-- The rest is set to '1' (analog).
-
-*(See page 126 from provided Datasheet-PIC16F1718)*
-
-#### OSCCON
-
-OSCCON = '01101000'
-
-IRCF<3:0> = '1101'
-
-According to the *Datasheet-PIC16F1718 - page 84*:
-- '1101' means the Internal Oscillator Frequency is at 4 MHz HF, as expected.
+---
