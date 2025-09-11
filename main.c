@@ -68,13 +68,13 @@ void main(void)
 
     while (1)
     {
-        if (PORTAbits.RA1 == 0)
+        if (PORTAbits.RA0 == 0)
         {
-            LATAbits.LATA2 = 1;
+            LATAbits.LATA1 = 1;
         }
         else
         {
-            LATAbits.LATA2 = 0;
+            LATAbits.LATA1 = 0;
         }
     }
 }
