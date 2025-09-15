@@ -81,3 +81,63 @@ ANSELA = 0x3A; ANSELB = 0x00; ANSELC = 0xFC;
 * LCD displays group number `n` at position `n+3`.
 
 ---
+
+## LCD Display
+
+### Goal
+
+Write the group number `n` at position `n+3` of the LCD.
+For our group (**n=1**), this means writing `'1'` at position **4**.
+
+---
+
+### Procedure
+
+1. Initialize LCD with provided library (`LCD.c` / `LCD.h`).
+2. Send instruction to set DDRAM address = 0x83 (position 4).
+
+   * Done in 4-bit mode, so sent as two nibbles:
+
+     * First nibble = `1000`
+     * Second nibble = `0011`
+3. Send ASCII code of `'1'` = 0x31.
+
+   * Sent as two nibbles:
+
+     * First nibble = `0011`
+     * Second nibble = `0001`
+
+---
+
+### Code Snippet
+
+```c
+// Set DDRAM Address to 0x83 (position 4)
+RS = 0;  // instruction
+D7=1; D6=0; D5=0; D4=0; EN=1; __delay_us(20); EN=0; // 1000
+D7=0; D6=0; D5=1; D4=1; EN=1; __delay_us(20); EN=0; // 0011
+
+// Write ASCII '1' (0x31)
+RS = 1;  // data
+D7=0; D6=0; D5=1; D4=1; EN=1; __delay_us(20); EN=0; // 0011
+D7=0; D6=0; D5=0; D4=1; EN=1; __delay_us(20); EN=0; // 0001
+```
+
+---
+
+### Verification in MPLAB Simulator
+
+* Use **Logic Analyzer** to watch pins `RS`, `EN`, and `D7–D4`.
+* Sequence observed:
+
+  * `1000 → 0011` (instruction 0x83)
+  * `0011 → 0001` (data 0x31 = `'1'`).
+* Confirms correct address + character written.
+
+---
+
+## Final Results
+
+* LED controlled by external switch.
+* LCD shows group number `'1'` at position **4**.
+* Verified in simulator via pin toggling + waveform analysis.

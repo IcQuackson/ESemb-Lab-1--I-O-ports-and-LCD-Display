@@ -1,83 +1,80 @@
-/**
-  Generated Main Source File
-
-  Company:
-    Microchip Technology Inc.
-
-  File Name:
-    main.c
-
-  Summary:
-    This is the main file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
-
-  Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
-    Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
-        Device            :  PIC16F1718
-        Driver Version    :  2.00
-*/
-
-/*
-    (c) 2018 Microchip Technology Inc. and its subsidiaries.
-
-    Subject to your compliance with these terms, you may use Microchip software and any
-    derivatives exclusively with Microchip products. It is your responsibility to comply with third party
-    license terms applicable to your use of third party software (including open source software) that
-    may accompany Microchip software.
-
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
-    EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY
-    IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS
-    FOR A PARTICULAR PURPOSE.
-
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
-    WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP
-    HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO
-    THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL
-    CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT
-    OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS
-    SOFTWARE.
-*/
-
 #include "mcc_generated_files/mcc.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <math.h>
+#include "LCD.h"
 
 /*
-                         Main application
- */
+ Main application
+*/
 void main(void)
 {
+    int   j;
+    int   a = 2025;
+    float c = 0.45;
+
     // initialize the device
     SYSTEM_Initialize();
 
-    // When using interrupts, you need to set the Global and Peripheral Interrupt Enable bits
-    // Use the following macros to:
+    Lcd_Init();
+    Lcd_Clear();
+    __delay_ms(2);
+    Lcd_Set_Cursor(1,1);
+    Lcd_Write_String("PIC16f1718 "); //write string
+    __delay_ms(500);
+    Lcd_Write_Integer(a); //write integer
+    for (j=0; j<15; j++)
+    {
+      __delay_ms(500);
+      Lcd_Shift_Right();
+    }
+    Lcd_Clear();
+    __delay_ms(2);
+    Lcd_Write_Float(c); //write float
+    __delay_ms(1000);
 
-    // Enable the Global Interrupts
-    //INTERRUPT_GlobalInterruptEnable();
+    // ADD NEW CODE HERE
+    Lcd_Clear();
+    __delay_ms(2);
 
-    // Enable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptEnable();
+    // 0x83 (endereço DDRAM posição 4)
+    EN = 0;
+    RS = 0; // 0: Escrita de instruções
+    D7 = 1; D6 = 0; D5 = 0; D4 = 0; // nibble mais significativo
+    EN = 1;
+    __delay_us(20);
+    EN = 0;
+    D7 = 0; D6 = 0; D5 = 1; D4 = 1; // nibble menos significativo
+    EN = 1;
+    __delay_us(20);
+    EN = 0;
+    __delay_ms(2);
 
-    // Disable the Global Interrupts
-    //INTERRUPT_GlobalInterruptDisable();
-
-    // Disable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptDisable();
+    // 0x31 (caractere '1')
+    RS = 1; // 1: Escrita de dados
+    D7 = 0; D6 = 0; D5 = 1; D4 = 1; // nibble mais significativo
+    EN = 1;
+    __delay_us(20);
+    EN = 0;
+    D7 = 0; D6 = 0; D5 = 0; D4 = 1; // nibble menos significativo
+    EN = 1;
+    __delay_us(20);
+    EN = 0;
 
     while (1)
     {
-        if (PORTAbits.RA0 == 0)
-        {
-            LATAbits.LATA1 = 1;
-        }
-        else
-        {
-            LATAbits.LATA1 = 0;
-        }
+      if (Switch_GetValue() == 0)
+      {
+        LED_SetHigh();
+      }
+      else
+      {
+        LED_SetLow();
+      }
     }
 }
-/**
+/*
  End of File
 */
